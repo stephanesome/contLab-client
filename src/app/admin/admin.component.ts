@@ -25,7 +25,7 @@ export class AdminComponent implements OnInit {
     year: [''],
     description: ['']
   });
-  books: Book[];
+
   get id(): AbstractControl {return this.bookForm.get('id'); }
   get category(): AbstractControl {return this.bookForm.get('category'); }
   get title(): AbstractControl {return this.bookForm.get('title'); }
