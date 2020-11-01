@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {Book} from '../model/book';
+import { Book} from '../model/book';
 import {BooksService} from '../service/books.service';
+
 
 @Component({
   selector: 'app-book',
@@ -17,8 +18,13 @@ export class BookComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       const id = params.id;
-      this.selectedBook = this.booksService.getBook(id);
+      this.booksService.getBook(id).subscribe(
+        (data: Book) => {
+          this.selectedBook = data;
+        },
+        (_: any) => {
+          this.selectedBook = null;
+        });
     });
   }
-
 }

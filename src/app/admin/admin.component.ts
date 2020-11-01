@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {AbstractControl, FormArray, FormBuilder, FormControl, Validators} from '@angular/forms';
-import {Book} from '../books/model/book';
+import {Author, Book} from '../books/model/book';
 import {BooksService} from '../books/service/books.service';
 
 function categoryValidator(control: FormControl): { [s: string]: boolean } | null {
@@ -16,8 +16,14 @@ function categoryValidator(control: FormControl): { [s: string]: boolean } | nul
   styleUrls: ['./admin.component.css']
 })
 export class AdminComponent implements OnInit {
+  message: string;
+  hideMsg = true;
+  msgStyle = {
+    color: null,
+    'background-color': 'white',
+    'font-size': '150%',
+  };
   bookForm = this.builder.group({
-    id: ['', [Validators.required, Validators.pattern('[1-9]\\d{3}')]],
     category: ['', [Validators.required, categoryValidator]],
     title: ['', Validators.required],
     cost: ['', [Validators.required, Validators.pattern('\\d+(\\.\\d{1,2})?')] ],
@@ -26,7 +32,6 @@ export class AdminComponent implements OnInit {
     description: ['']
   });
 
-  get id(): AbstractControl {return this.bookForm.get('id'); }
   get category(): AbstractControl {return this.bookForm.get('category'); }
   get title(): AbstractControl {return this.bookForm.get('title'); }
   get cost(): AbstractControl {return this.bookForm.get('cost'); }
@@ -40,15 +45,48 @@ export class AdminComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  showMessage(type: string, msg: string): void {
+    this.msgStyle.color = type === 'error' ? 'red' : 'blue';
+    this.message = msg;
+    this.hideMsg = false;
+    setTimeout(
+      () => {
+        this.hideMsg = true;
+      }, 3000
+    );
+  }
+
   onSubmit(): void {
-    const book =  new Book(Number(this.bookForm.value.id),
+    const book =  new Book(0,
       this.bookForm.value.category,
       this.bookForm.value.title,
       Number(this.bookForm.value.cost),
-      this.bookForm.value.authors,
+      [],
       Number(this.bookForm.value.year),
       this.bookForm.value.description);
-    this.booksService.addBook(book);
+    const authors = this.bookForm.value.authors;
+    this.booksService.addBook(book).subscribe(
+      (response) => {
+        authors.forEach(
+          (author) => {
+            this.booksService.getAuthorsNamed(author.firstName, author.lastName).subscribe(
+              (authorList: Author[]) => {
+                if (authorList === undefined || authorList.length === 0) {
+                  this.booksService.addBookAuthor(response.id, author).subscribe();
+                } else {
+                  // *** Assumes unique firstName/LastName for Authors
+                  this.booksService.updateBookAuthors(response.id, authorList[0].id).subscribe();
+                }
+              }
+            );
+          }
+        );
+        this.showMessage('info', `The was successfully added with id ${response.id}`);
+      },
+    (_: any) => {
+      this.showMessage('error', 'Unable to add the book');
+    }
+    );
     this.bookForm.reset();
     this.authors.clear();
   }
