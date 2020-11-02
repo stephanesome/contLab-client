@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Author, Book} from '../model/book';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {map, tap} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 
 const Url = 'http://localhost:8080/books-api/';
 
@@ -28,7 +28,6 @@ export class BooksService {
   public getAuthorsNamed(firstName: string, lastName: string): Observable<any> {
     const options = {params: new HttpParams().set('firstName', firstName).set('lastName', lastName)};
     return this.http.get<any>(Url + 'authors', options).pipe(
-      tap(response => console.log(response)),
       map(response => response._embedded ? response._embedded.authors : undefined )
     );
   }
