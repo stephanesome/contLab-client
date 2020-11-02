@@ -28,8 +28,8 @@ export class AdminComponent implements OnInit {
     title: ['', Validators.required],
     cost: ['', [Validators.required, Validators.pattern('\\d+(\\.\\d{1,2})?')] ],
     authors: this.builder.array([]),
-    year: [''],
-    description: ['']
+    year: ['', Validators.required],
+    description: ['', Validators.required]
   });
 
   get category(): AbstractControl {return this.bookForm.get('category'); }

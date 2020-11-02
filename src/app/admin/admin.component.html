@@ -49,10 +49,18 @@
     <div class="form-group">
       <label for="year">Year:</label>
       <input type="text" class="form-control" id="year" formControlName="year">
+      <div [hidden]="title.pristine || title.valid"
+           class="alert alert-danger">
+        Year is required.
+      </div>
     </div>
     <div class="form-group">
       <label for="description">Description:</label>
       <textarea cols="40" class="form-control" id="description" formControlName="description"></textarea>
+      <div [hidden]="title.pristine || title.valid"
+           class="alert alert-danger">
+        Description is required.
+      </div>
     </div>
     <button type="submit" class="btn btn-success" [disabled]="bookForm.invalid">Submit</button>
   </form>
